@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "903081227903",
+    "firebase_url": "https://sanchat-d07d5.firebaseio.com",
+    "project_id": "sanchat-d07d5",
+    "storage_bucket": "sanchat-d07d5.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:903081227903:android:0691353c765b6a7925314a",
+        "android_client_info": {
+          "package_name": "com.sanchat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "903081227903-l0p7vgc7ckp54joufjvn75cijgeagh6k.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sanchat",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "903081227903-4l345ujpvft3ku9ivmmft8adin2mge6v.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCFA2y_SVv2VD-L3JhTGu9xAYfvlcwa49w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "903081227903-4l345ujpvft3ku9ivmmft8adin2mge6v.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
