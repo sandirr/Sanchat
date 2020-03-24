@@ -67,7 +67,7 @@ export default class LoginScreen extends React.Component {
         .auth()
         .signInWithEmailAndPassword(email, password)
         .then(async data => {
-          console.log(data);
+          console.log(data.user.displayName, 'dataniih');
         })
         .catch(error => console.log(error.message));
     }
@@ -76,18 +76,14 @@ export default class LoginScreen extends React.Component {
   render() {
     return (
       <View style={styles.container}>
-        <StatusBar
-          barStyle="dark-content"
-          backgroundColor="#f4f4f4"></StatusBar>
+        <StatusBar barStyle="dark-content" backgroundColor="#f4f4f4" />
         <ScrollView>
           <Text style={styles.greeting}>{`Hello again.\nWelcome back.`}</Text>
-
           <View style={styles.errorMessage}>
             {this.state.errorMessage && (
               <Text style={styles.error}>{this.state.errorMessage}</Text>
             )}
           </View>
-
           <View style={styles.form}>
             <View>
               <KeyboardAvoidingView behavior="padding" enabled>
@@ -96,7 +92,8 @@ export default class LoginScreen extends React.Component {
                   style={styles.input}
                   autoCapitalize="none"
                   onChangeText={email => this.setState({email})}
-                  value={this.state.email}></TextInput>
+                  value={this.state.email}
+                />
               </KeyboardAvoidingView>
             </View>
 

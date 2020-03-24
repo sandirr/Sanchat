@@ -78,6 +78,7 @@ export default class RegisterScreen extends React.Component {
             .database()
             .ref('/user/' + userCredentials.user.uid)
             .set({
+              userId: userCredentials.user.uid,
               name: this.state.name,
               status: 'Online',
               email: this.state.email,
@@ -108,9 +109,7 @@ export default class RegisterScreen extends React.Component {
   render() {
     return (
       <View style={styles.container}>
-        <StatusBar
-          barStyle="dark-content"
-          backgroundColor="#f4f4f4"></StatusBar>
+        <StatusBar barStyle="dark-content" backgroundColor="#f4f4f4" />
         <ScrollView>
           <Text style={styles.greeting}>{`Hello again.\nWelcome back.`}</Text>
 

@@ -1,10 +1,9 @@
-import React, {Component, useEffect} from 'react';
-import {View} from 'react-native';
+import React, {useEffect} from 'react';
 import SplashScreen from 'react-native-splash-screen';
 
 // import Map from './src/Map';
 // import Message from './src/Message';
-import AppNavigator from './components/navigations/MainNavigator';
+import AppNavigator from './screens/navigations/MainNavigator';
 
 const App = () => {
   useEffect(() => {
