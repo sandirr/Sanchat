@@ -1,13 +1,16 @@
 import React, {Component} from 'react';
 import {
+  View,
+  TextInput,
   FlatList,
+  Keyboard,
   StyleSheet,
   Image,
+  ImageBackground,
   TouchableOpacity,
   StatusBar,
   AsyncStorage,
 } from 'react-native';
-import {db} from './Config';
 import {
   Container,
   Header,
@@ -16,22 +19,27 @@ import {
   Body,
   Title,
   Right,
+  Button,
   Left,
   Content,
   List,
   ListItem,
   Thumbnail,
-  Fab,
+  Footer,
+  FooterTab,
+  Badge,
+  Input,
+  Item,
 } from 'native-base';
 import User from './navigations/User';
+import {db} from './Config';
 
-class HomeScreen extends Component {
+class ContactScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
       active: false,
       users: [],
-      imageSource: User.image,
     };
   }
 
@@ -44,26 +52,11 @@ class HomeScreen extends Component {
         User.name = person.name;
         User.image = person.image ? person.image : null;
       } else if (person.phone !== User.phone) {
-        db.ref('messages')
-          .child(User.phone)
-          .child(person.phone)
-          .on('child_added', value => {
-            person.last_message = value.val().message;
-          });
-        db.ref('messages')
-          .child(User.phone)
-          .child(person.phone)
-          .on('child_added', value => {
-            if (value.val()) {
-              if (!this.state.users.includes(person)) {
-                this.setState(prevState => {
-                  return {
-                    users: [...prevState.users, person],
-                  };
-                });
-              }
-            }
-          });
+        this.setState(prevState => {
+          return {
+            users: [...prevState.users, person],
+          };
+        });
       }
     });
   }
@@ -96,7 +89,6 @@ class HomeScreen extends Component {
         </Left>
         <Body style={styles.bodyList}>
           <Text style={{fontWeight: 'bold'}}>{item.name}</Text>
-          <Text note>{item.last_message}</Text>
         </Body>
       </ListItem>
     );
@@ -105,15 +97,17 @@ class HomeScreen extends Component {
   render() {
     return (
       <Container style={styles.container}>
-        <Header noShadow style={styles.header}>
-          <Body>
-            <Title style={styles.title}>Sanchat</Title>
-          </Body>
-          <Right>
-            <TouchableOpacity onPress={this.goToProfile}>
-              <Text style={{fontWeight:'bold', fontSize:30, marginBottom:20}}>...</Text>
+        <Header searchBar rounded style={styles.header}>
+          <Left>
+            <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
+              <Icon name="arrow-back" />
             </TouchableOpacity>
-          </Right>
+          </Left>
+          <Item rounded style={{marginLeft: -75, marginRight: 5}}>
+            <Icon name="ios-search" />
+            <Input placeholder="Search" />
+            <Icon name="ios-people" />
+          </Item>
         </Header>
         <StatusBar barStyle="dark-content" backgroundColor="#e5e5e5" />
         <Content>
@@ -121,15 +115,10 @@ class HomeScreen extends Component {
             <FlatList
               data={this.state.users}
               renderItem={this.renderRow}
-              keyExtractor={item => item.time}
+              keyExtractor={item => item.phone}
             />
           </List>
         </Content>
-        <Fab
-          style={[styles.footer]}
-          onPress={() => this.props.navigation.navigate('Contact')}>
-          <Icon style={styles.footerIcon} name="people" />
-        </Fab>
       </Container>
     );
   }
@@ -157,12 +146,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#f3f3f3',
   },
   bodyList: {
-    borderBottomWidth: 0.5,
+    borderBottomWidth: 0,
     paddingBottom: 7,
   },
   friendPhoto: {
-    height: 50,
-    width: 50,
+    height: 35,
+    width: 35,
     marginTop: -7,
     marginLeft: -5,
   },
@@ -171,4 +160,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HomeScreen;
+export default ContactScreen;

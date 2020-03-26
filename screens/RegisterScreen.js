@@ -10,13 +10,13 @@ import {
 import User from './navigations/User';
 import {firebase} from '@react-native-firebase/database';
 import {Item, Button, Input, Label, Container, Icon} from 'native-base';
-
-class LoginScreen extends Component {
+class RegisterScreen extends Component {
   static navigationOptions = {
     header: null,
   };
   state = {
     phone: '',
+    name: '',
     password: '',
   };
 
@@ -32,36 +32,25 @@ class LoginScreen extends Component {
     });
   }
 
-  SavePhone = async () => {
-    await AsyncStorage.setItem('userPhone', this.state.phone);
-  };
-  submitForm = () => {
+  submitForm = async () => {
     if (this.state.phone.length < 10) {
       Alert.alert('error', 'wrong phone number');
-    } else if (this.state.password.length < 1) {
-      Alert.alert('Password', 'Please type your password!');
+    } else if (this.state.password.length < 8) {
+      Alert.alert('error', 'Password contains at least 8 characters');
+    } else if (this.state.name.length < 1) {
+      Alert.alert('error', 'Please input your name/nickname');
     } else {
+      await AsyncStorage.setItem('userPhone', this.state.phone);
       User.phone = this.state.phone;
       firebase
         .database()
-        .ref('users/')
-        .on('child_added', value => {
-          if (value.val().phone === this.state.phone) {
-            firebase
-              .database()
-              .ref('users/' + User.phone)
-              .on('value', val => {
-                if (val) {
-                  if (val.val().password === this.state.password) {
-                    this.SavePhone();
-                    this.props.navigation.navigate('App');
-                  } else {
-                    Alert.alert('Sanchat...', 'Your Password False');
-                  }
-                }
-              });
-          }
+        .ref('users/' + User.phone)
+        .set({
+          name: this.state.name,
+          phone: this.state.phone,
+          password: this.state.password,
         });
+      this.props.navigation.navigate('App');
     }
   };
   render() {
@@ -72,6 +61,14 @@ class LoginScreen extends Component {
           backgroundColor: '#fff',
         }}>
         <View style={{paddingHorizontal: 40}}>
+          <Item floatingLabel style={{marginBottom: 10}}>
+            <Label>Name</Label>
+            <Input
+              value={this.state.name}
+              onChangeText={this.handleChange('name')}
+              style={{paddingLeft: 0}}
+            />
+          </Item>
           <Item floatingLabel style={{marginBottom: 10}}>
             <Label>Phone</Label>
             <Input
@@ -101,7 +98,7 @@ class LoginScreen extends Component {
             backgroundColor: '#176781',
             flex: 1,
           }}>
-          <Text style={{color: '#fff', fontWeight: 'bold'}}>Sign In</Text>
+          <Text style={{color: '#fff', fontWeight: 'bold'}}>Sign Up</Text>
         </Button>
         <View
           style={{
@@ -110,10 +107,10 @@ class LoginScreen extends Component {
             marginTop: 10,
           }}>
           <TouchableOpacity
-            onPress={() => this.props.navigation.navigate('Register')}>
+            onPress={() => this.props.navigation.navigate('Login')}>
             <Text>
-              Don't have an account ?
-              <Text style={{fontWeight: 'bold'}}> Sign Up</Text>
+              Already have an account ?
+              <Text style={{fontWeight: 'bold'}}> Sign In</Text>
             </Text>
           </TouchableOpacity>
         </View>
@@ -122,4 +119,4 @@ class LoginScreen extends Component {
   }
 }
 
-export default LoginScreen;
+export default RegisterScreen;

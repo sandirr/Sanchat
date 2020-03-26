@@ -3,14 +3,18 @@ import {createStackNavigator} from 'react-navigation-stack';
 import AuthLoadingScreen from './Loading';
 import LoginScreen from '../LoginScreen';
 import HomeScreen from '../HomeScreen';
+import ProfileScreen from '../ProfileScreen';
 // import Map from '../Map';
-// import RegisterScreen from '../page/Register';
+import RegisterScreen from '../RegisterScreen';
 // import Settings from '../page/partials/Settings';
 import ChatScreen from '../ChatScreen';
+import ContactScreen from '../ContactScreen';
 
 const AppStack = createStackNavigator({
   Apps: HomeScreen,
   Chat: ChatScreen,
+  Profile: ProfileScreen,
+  Contact: ContactScreen,
   //   Map,
   // Settings: Settings,
   // Chat: Chat,
@@ -18,7 +22,7 @@ const AppStack = createStackNavigator({
 
 const AuthStack = createStackNavigator({
   Login: LoginScreen,
-  // Register: RegisterScreen,
+  Register: RegisterScreen,
 });
 
 export default createAppContainer(

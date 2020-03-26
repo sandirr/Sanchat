@@ -14,11 +14,12 @@ export default class Loading extends React.Component {
     this.checkAuth();
   }
 
-  async checkAuth() {
+  checkAuth = async () => {
     await firebase.auth().onAuthStateChanged(user => {
+      console.log(user.email, 'useryah');
       this.props.navigation.navigate(user ? 'App' : 'Auth');
     });
-  }
+  };
 
   render() {
     return (
