@@ -7,6 +7,7 @@ import {
   Text,
 } from 'react-native';
 import User from './User';
+import {Spinner} from 'native-base';
 
 export default class AuthLoadingScreen extends React.Component {
   constructor(props) {
@@ -30,13 +31,14 @@ export default class AuthLoadingScreen extends React.Component {
       <View
         style={{
           flex: 1,
-          flexDirection: 'row',
+          flexDirection: 'column',
           justifyContent: 'center',
           alignItems: 'center',
         }}>
-        <ActivityIndicator />
-        <StatusBar barStyle="default" />
-        <Text>Wait</Text>
+        <View>
+          <Text>Wait</Text>
+        </View>
+        <Spinner color="#145970" />
       </View>
     );
   }

@@ -17,15 +17,16 @@ import {
   Icon,
   Title,
   Subtitle,
+  Image,
+  Thumbnail,
 } from 'native-base';
 import Firebase from 'firebase';
 import User from './navigations/User';
 import {TextInput} from 'react-native-gesture-handler';
-import {db} from './Config';
 
 class ChatScreen extends Component {
   static navigationOptions = {
-    header: null,
+    headerShown: false,
   };
   constructor(props) {
     super(props);
@@ -37,10 +38,14 @@ class ChatScreen extends Component {
       },
       messageList: [],
       dbRef: Firebase.database().ref('messages'),
+      image: '',
     };
   }
 
   componentDidMount() {
+    this.setState({
+      image: this.props.navigation.getParam('image'),
+    });
     this.state.dbRef
       .child(User.phone)
       .child(this.state.person.phone)
@@ -143,21 +148,35 @@ class ChatScreen extends Component {
       <Container>
         <Header noShadow style={style.header}>
           <Left>
-            <Button transparent onPress={() => this.props.navigation.goBack()}>
-              <Icon style={{color: '#000'}} name="arrow-back" />
+            <Button
+              transparent
+              onPress={() => this.props.navigation.navigate('Apps')}>
+              <Icon style={{color: '#fff'}} name="arrow-back" />
             </Button>
           </Left>
+          <Thumbnail
+            source={{
+              uri: this.state.image,
+            }}
+            style={{
+              marginLeft: -50,
+              height: 45,
+              width: 45,
+              marginTop: 7,
+              marginRight: 12,
+            }}
+          />
+
           <Body>
-            <Title style={{color: '#000', fontWeight: 'bold'}}>
+            <Title style={{color: '#fff', fontWeight: 'bold'}}>
               {this.props.navigation.getParam('name', null)}
             </Title>
-            <Subtitle style={{color: '#000', fontWeight: '700'}}>
+            <Subtitle style={{color: '#fff', fontWeight: '700'}}>
               {this.props.navigation.getParam('phone')}
             </Subtitle>
           </Body>
-          <Right></Right>
         </Header>
-        <StatusBar barStyle="dark-content" backgroundColor="#e5e5e5" />
+        <StatusBar barStyle="light-content" backgroundColor="#145970" />
         <FlatList
           ref={ref => (this.flatList = ref)}
           onContentSizeChange={() =>
@@ -182,7 +201,7 @@ class ChatScreen extends Component {
               width: '85%',
               borderRadius: 25,
               backgroundColor: '#f3f3f3',
-              marginLeft: 10,
+              marginLeft: 6,
             }}
             value={this.state.textMessage}
             placeholder="Message"
@@ -198,7 +217,7 @@ class ChatScreen extends Component {
               width: 30,
               marginLeft: 10,
             }}>
-            <Icon name="send" style={{color: '#176781', marginLeft: 4}} />
+            <Icon name="send" style={{color: '#145970', marginLeft: 4}} />
           </TouchableOpacity>
         </View>
       </Container>
@@ -218,7 +237,7 @@ const style = StyleSheet.create({
     marginRight: 5,
   },
   header: {
-    backgroundColor: '#f3f3f3',
+    backgroundColor: '#176781',
   },
   incomingChat: {
     alignItems: 'flex-start',

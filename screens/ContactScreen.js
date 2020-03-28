@@ -51,6 +51,8 @@ class ContactScreen extends Component {
       if (person.phone === User.phone) {
         User.name = person.name;
         User.image = person.image ? person.image : null;
+        User.password = person.password;
+        User.email = person.email;
       } else if (person.phone !== User.phone) {
         this.setState(prevState => {
           return {
@@ -62,7 +64,7 @@ class ContactScreen extends Component {
   }
 
   static navigationOptions = {
-    header: null,
+    headerShown: false,
   };
   goToProfile = () => {
     this.props.navigation.navigate('Profile');

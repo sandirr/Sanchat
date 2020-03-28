@@ -26,6 +26,9 @@ import {
 import User from './navigations/User';
 
 class HomeScreen extends Component {
+  static navigationOptions = {
+    headerShown: false,
+  };
   constructor(props) {
     super(props);
     this.state = {
@@ -35,7 +38,7 @@ class HomeScreen extends Component {
     };
   }
 
-  componentDidMount() {
+  componentWillMount() {
     let dbRef = db.ref('users');
     dbRef.on('child_added', val => {
       let person = val.val();
@@ -43,17 +46,21 @@ class HomeScreen extends Component {
       if (person.phone === User.phone) {
         User.name = person.name;
         User.image = person.image ? person.image : null;
+        User.password = person.password;
+        User.email = person.email;
       } else if (person.phone !== User.phone) {
         db.ref('messages')
           .child(User.phone)
           .child(person.phone)
           .on('child_added', value => {
+            person.last_time = value.val().time;
             person.last_message = value.val().message;
           });
+
         db.ref('messages')
           .child(User.phone)
           .child(person.phone)
-          .on('child_added', value => {
+          .on('value', value => {
             if (value.val()) {
               if (!this.state.users.includes(person)) {
                 this.setState(prevState => {
@@ -67,10 +74,6 @@ class HomeScreen extends Component {
       }
     });
   }
-
-  static navigationOptions = {
-    header: null,
-  };
   goToProfile = () => {
     this.props.navigation.navigate('Profile');
   };
@@ -96,8 +99,14 @@ class HomeScreen extends Component {
         </Left>
         <Body style={styles.bodyList}>
           <Text style={{fontWeight: 'bold'}}>{item.name}</Text>
-          <Text note>{item.last_message}</Text>
+          <Text note>{item.last_message.slice(0, 30)}...</Text>
         </Body>
+        <Right style={styles.bodyList}>
+          <Text note>
+            {new Date(item.last_time).getHours()} :{' '}
+            {new Date(item.last_time).getMinutes()}
+          </Text>
+        </Right>
       </ListItem>
     );
   };
@@ -111,11 +120,19 @@ class HomeScreen extends Component {
           </Body>
           <Right>
             <TouchableOpacity onPress={this.goToProfile}>
-              <Text style={{fontWeight:'bold', fontSize:30, marginBottom:20}}>...</Text>
+              <Text
+                style={{
+                  fontWeight: 'bold',
+                  fontSize: 30,
+                  marginBottom: 20,
+                  color: '#fff',
+                }}>
+                ...
+              </Text>
             </TouchableOpacity>
           </Right>
         </Header>
-        <StatusBar barStyle="dark-content" backgroundColor="#e5e5e5" />
+        <StatusBar barStyle="light-content" backgroundColor="#145970" />
         <Content>
           <List>
             <FlatList
@@ -145,7 +162,8 @@ const styles = StyleSheet.create({
   title: {
     fontWeight: 'bold',
     marginLeft: 5,
-    color: '#000',
+    color: '#fff',
+    fontSize: 24,
   },
   photo: {
     height: 40,
@@ -154,7 +172,7 @@ const styles = StyleSheet.create({
     marginRight: 5,
   },
   header: {
-    backgroundColor: '#f3f3f3',
+    backgroundColor: '#176781',
   },
   bodyList: {
     borderBottomWidth: 0.5,

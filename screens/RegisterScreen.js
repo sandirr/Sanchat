@@ -8,16 +8,17 @@ import {
   AsyncStorage,
 } from 'react-native';
 import User from './navigations/User';
-import {firebase} from '@react-native-firebase/database';
-import {Item, Button, Input, Label, Container, Icon} from 'native-base';
+import firebase from 'firebase';
+import {Item, Button, Input, Label, Container, Icon, H1} from 'native-base';
 class RegisterScreen extends Component {
   static navigationOptions = {
-    header: null,
+    headerShown: false,
   };
   state = {
     phone: '',
     name: '',
     password: '',
+    email: '',
   };
 
   handleChange = key => val => {
@@ -42,6 +43,7 @@ class RegisterScreen extends Component {
     } else {
       await AsyncStorage.setItem('userPhone', this.state.phone);
       User.phone = this.state.phone;
+      User.password = this.state.password;
       firebase
         .database()
         .ref('users/' + User.phone)
@@ -49,6 +51,7 @@ class RegisterScreen extends Component {
           name: this.state.name,
           phone: this.state.phone,
           password: this.state.password,
+          email: this.state.email,
         });
       this.props.navigation.navigate('App');
     }
@@ -60,6 +63,12 @@ class RegisterScreen extends Component {
           justifyContent: 'center',
           backgroundColor: '#fff',
         }}>
+        <View style={{marginTop: -80}}>
+          <H1 style={{alignSelf: 'center', fontWeight: 'bold'}}>Sanchat</H1>
+          <Text style={{alignSelf: 'center', fontWeight: 'bold'}}>
+            Connect with your friend now !
+          </Text>
+        </View>
         <View style={{paddingHorizontal: 40}}>
           <Item floatingLabel style={{marginBottom: 10}}>
             <Label>Name</Label>
@@ -75,6 +84,15 @@ class RegisterScreen extends Component {
               keyboardType="number-pad"
               value={this.state.phone}
               onChangeText={this.handleChange('phone')}
+              style={{paddingLeft: 0}}
+            />
+          </Item>
+          <Item floatingLabel style={{marginBottom: 10}}>
+            <Label>Email</Label>
+            <Input
+              keyboardType="number-pad"
+              value={this.state.email}
+              onChangeText={this.handleChange('email')}
               style={{paddingLeft: 0}}
             />
           </Item>

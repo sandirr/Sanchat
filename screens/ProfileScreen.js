@@ -6,15 +6,32 @@ import {
   AsyncStorage,
   Image,
   ActivityIndicator,
+  StyleSheet,
+  StatusBar,
 } from 'react-native';
 import User from './navigations/User';
-import {Container, Input, Button, Item, Label, Icon} from 'native-base';
+import {
+  Container,
+  Input,
+  Button,
+  Item,
+  Label,
+  Icon,
+  Header,
+  Thumbnail,
+  Title,
+  Subtitle,
+  Left,
+  Body,
+  Right,
+} from 'native-base';
 import firebase from 'firebase';
 import ImagePicker from 'react-native-image-picker';
 import {db} from './Config';
+import MapView from 'react-native-maps';
 class ProfileScreen extends Component {
   static navigationOptions = {
-    // header: false,
+    headerShown: false,
   };
   state = {
     name: User.name,
@@ -26,15 +43,17 @@ class ProfileScreen extends Component {
             'https://cdn.iconscout.com/icon/free/png-256/account-profile-avatar-man-circle-round-user-30452.png',
         },
     upload: false,
+    showSave: false,
   };
   onChange = key => val => {
     this.setState({[key]: val});
+    this.setState({showSave: true});
   };
   changeName = async () => {
     if (User.name !== this.state.name) {
       User.name = this.state.name;
       this.updateUser();
-      Alert.alert('Success', 'Name changed');
+      this.setState({showSave: false});
     }
   };
   changeImage = () => {
@@ -67,8 +86,10 @@ class ProfileScreen extends Component {
   updateUser = () => {
     db.ref('users')
       .child(User.phone)
-      .set(User);
-    Alert.alert('Success', 'Image has been changed');
+      .set(User)
+      .then(res => {
+        Alert.alert('Success', 'Saved changes');
+      });
   };
   updateUserImage = imageUrl => {
     User.image = imageUrl;
@@ -115,9 +136,30 @@ class ProfileScreen extends Component {
   render() {
     return (
       <Container>
-        <TouchableOpacity onPress={this.changeImage}>
+        <Header noShadow style={style.header}>
+          <Left>
+            <Button
+              style={{flex: 1}}
+              transparent
+              onPress={() => this.props.navigation.goBack()}>
+              <Icon style={{color: '#fff'}} name="arrow-back" />
+            </Button>
+          </Left>
+          <Body>
+            <Title style={{color: '#fff', fontWeight: 'bold'}}>Profile</Title>
+          </Body>
+          <Right></Right>
+        </Header>
+        <StatusBar barStyle="light-content" backgroundColor="#145970" />
+        <TouchableOpacity
+          onPress={this.changeImage}
+          style={{
+            width: 130,
+            height: 130,
+            alignSelf: 'center',
+          }}>
           {this.state.upload ? (
-            <ActivityIndicator size="large" />
+            <ActivityIndicator size="large" style={{marginTop: 40}} />
           ) : (
             <Image
               source={this.state.imageSource}
@@ -135,38 +177,80 @@ class ProfileScreen extends Component {
         <Text style={{alignSelf: 'center', fontWeight: 'bold', fontSize: 18}}>
           {User.phone}
         </Text>
-        <Item style={{marginLeft: 40, marginRight: 40, borderBottomWidth: 0}}>
-          <Label>Name: </Label>
+        <Item
+          style={{
+            marginLeft: 40,
+            marginRight: 40,
+            borderBottomWidth: 0,
+          }}>
+          <Label>
+            <Icon name="create" style={{fontSize: 14}} />
+          </Label>
           <Input value={this.state.name} onChangeText={this.onChange('name')} />
         </Item>
-        <Button
-          light
-          onPress={this.changeName}
-          style={{
-            justifyContent: 'center',
-            backgroundColor: '#f3f3f3',
-            marginHorizontal: 40,
-            borderRadius: 20,
-            marginBottom: 25,
+        <MapView
+          style={{marginHorizontal: 40, height: 150, marginBottom: 25}}
+          region={{
+            latitude: 37.78825,
+            longitude: -122.4324,
+            latitudeDelta: 0.0922,
+            longitudeDelta: 0.0421,
           }}>
-          <Icon name="save" />
-          <Text style={{fontWeight: 'bold'}}>Save</Text>
-        </Button>
+          <MapView.Marker
+            coordinate={{
+              latitude: 37.78825,
+              longitude: -122.4324,
+            }}
+            title="Lokasi"
+            description="Hello"
+          />
+        </MapView>
+        {this.state.showSave ? (
+          <Button
+            light
+            onPress={this.changeName}
+            style={{
+              justifyContent: 'center',
+              backgroundColor: '#f3f3f3',
+              marginHorizontal: 40,
+              borderRadius: 20,
+              marginBottom: 25,
+            }}>
+            <Icon name="save" />
+            <Text style={{fontWeight: 'bold'}}>Save</Text>
+          </Button>
+        ) : (
+          <Text></Text>
+        )}
 
         <Button
           onPress={this._logOut}
+          transparent
           style={{
             justifyContent: 'center',
-            backgroundColor: '#176781',
             marginHorizontal: 40,
             borderRadius: 20,
           }}>
-          <Icon name="log-out" />
-          <Text style={{fontWeight: 'bold', color: 'white'}}> Logout</Text>
+          <Icon name="log-out" style={{color: '#000'}} />
+          <Text style={{fontWeight: 'bold', color: '#000'}}> Logout</Text>
         </Button>
       </Container>
     );
   }
 }
-
+const style = StyleSheet.create({
+  title: {
+    fontWeight: 'bold',
+    marginLeft: 5,
+  },
+  photo: {
+    height: 40,
+    width: 40,
+    borderRadius: 50,
+    marginRight: 5,
+  },
+  header: {
+    backgroundColor: '#176781',
+  },
+});
 export default ProfileScreen;

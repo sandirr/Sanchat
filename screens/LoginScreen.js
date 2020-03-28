@@ -8,12 +8,12 @@ import {
   AsyncStorage,
 } from 'react-native';
 import User from './navigations/User';
-import {firebase} from '@react-native-firebase/database';
-import {Item, Button, Input, Label, Container, Icon} from 'native-base';
+import firebase from 'firebase';
+import {Item, Button, Input, Label, Container, Icon, H1} from 'native-base';
 
 class LoginScreen extends Component {
   static navigationOptions = {
-    header: null,
+    headerShown: false,
   };
   state = {
     phone: '',
@@ -41,7 +41,6 @@ class LoginScreen extends Component {
     } else if (this.state.password.length < 1) {
       Alert.alert('Password', 'Please type your password!');
     } else {
-      User.phone = this.state.phone;
       firebase
         .database()
         .ref('users/')
@@ -49,13 +48,15 @@ class LoginScreen extends Component {
           if (value.val().phone === this.state.phone) {
             firebase
               .database()
-              .ref('users/' + User.phone)
+              .ref('users/' + this.state.phone)
               .on('value', val => {
                 if (val) {
                   if (val.val().password === this.state.password) {
                     this.SavePhone();
+                    User.phone = this.state.phone;
+                    User.password = this.state.password;
                     this.props.navigation.navigate('App');
-                  } else {
+                  } else if (val.val().password !== this.state.password) {
                     Alert.alert('Sanchat...', 'Your Password False');
                   }
                 }
@@ -71,6 +72,12 @@ class LoginScreen extends Component {
           justifyContent: 'center',
           backgroundColor: '#fff',
         }}>
+        <View style={{marginTop: -50, marginBottom: 10}}>
+          <H1 style={{alignSelf: 'center', fontWeight: 'bold'}}>Sanchat</H1>
+          <Text style={{alignSelf: 'center', fontWeight: 'bold'}}>
+            Connect with your friend now !
+          </Text>
+        </View>
         <View style={{paddingHorizontal: 40}}>
           <Item floatingLabel style={{marginBottom: 10}}>
             <Label>Phone</Label>

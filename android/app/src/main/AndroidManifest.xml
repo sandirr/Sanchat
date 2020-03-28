@@ -24,6 +24,9 @@
         </activity>
 
         <!-- Remove the intent-filter of the MainActivity and add a param android:exported="true" -->
+        <meta-data
+        android:name="com.google.android.geo.API_KEY"
+        android:value="AIzaSyCFA2y_SVv2VD-L3JhTGu9xAYfvlcwa49w"/>
         <activity
           android:name=".MainActivity"
           android:label="@string/app_name"
