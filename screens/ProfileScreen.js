@@ -24,11 +24,13 @@ import {
   Left,
   Body,
   Right,
+  ListItem,
+  Switch,
 } from 'native-base';
 import firebase from 'firebase';
 import ImagePicker from 'react-native-image-picker';
 import {db} from './Config';
-import MapView from 'react-native-maps';
+
 class ProfileScreen extends Component {
   static navigationOptions = {
     headerShown: false,
@@ -43,17 +45,33 @@ class ProfileScreen extends Component {
             'https://cdn.iconscout.com/icon/free/png-256/account-profile-avatar-man-circle-round-user-30452.png',
         },
     upload: false,
-    showSave: false,
+    showSaveName: false,
+    error: '',
+    password: '',
+    showSavePass: false,
   };
+
   onChange = key => val => {
     this.setState({[key]: val});
-    this.setState({showSave: true});
+    if (key === 'name') {
+      this.setState({showSaveName: true});
+    }
+    if (key === 'password') {
+      this.setState({showSavePass: true});
+    }
   };
   changeName = async () => {
     if (User.name !== this.state.name) {
       User.name = this.state.name;
       this.updateUser();
-      this.setState({showSave: false});
+      this.setState({showSaveName: false});
+    }
+  };
+  changePassword = async () => {
+    if (User.password !== this.state.password) {
+      User.password = this.state.password;
+      this.updateUser();
+      this.setState({showSavePass: false});
     }
   };
   changeImage = () => {
@@ -128,10 +146,21 @@ class ProfileScreen extends Component {
       xhr.send(null);
     });
   };
-  _logOut = async () => {
-    await AsyncStorage.clear();
-    this.setState({users: []});
-    this.props.navigation.navigate('Auth');
+  _logOut = () => {
+    Alert.alert('LOGOUT', 'Are you sure ?', [
+      {
+        text: 'NO',
+        style: 'cancel',
+      },
+      {
+        text: 'YES',
+        onPress: async () => {
+          await AsyncStorage.clear();
+          this.setState({users: []});
+          this.props.navigation.navigate('Auth');
+        },
+      },
+    ]);
   };
   render() {
     return (
@@ -154,86 +183,111 @@ class ProfileScreen extends Component {
         <TouchableOpacity
           onPress={this.changeImage}
           style={{
-            width: 130,
-            height: 130,
+            width: 180,
+            height: 180,
             alignSelf: 'center',
           }}>
           {this.state.upload ? (
-            <ActivityIndicator size="large" style={{marginTop: 40}} />
+            <ActivityIndicator size="large" style={{marginTop: 50}} />
           ) : (
             <Image
               source={this.state.imageSource}
               style={{
-                width: 100,
-                height: 100,
+                borderColor: '#c3c3c3',
+                borderWidth: 5,
+                width: 150,
+                height: 150,
                 resizeMode: 'cover',
                 alignSelf: 'center',
-                marginTop: 22,
+                marginTop: 30,
                 borderRadius: 50,
+                resizeMode: 'cover',
               }}
             />
           )}
         </TouchableOpacity>
-        <Text style={{alignSelf: 'center', fontWeight: 'bold', fontSize: 18}}>
-          {User.phone}
-        </Text>
-        <Item
-          style={{
-            marginLeft: 40,
-            marginRight: 40,
-            borderBottomWidth: 0,
-          }}>
-          <Label>
-            <Icon name="create" style={{fontSize: 14}} />
-          </Label>
-          <Input value={this.state.name} onChangeText={this.onChange('name')} />
-        </Item>
-        <MapView
-          style={{marginHorizontal: 40, height: 150, marginBottom: 25}}
-          region={{
-            latitude: 37.78825,
-            longitude: -122.4324,
-            latitudeDelta: 0.0922,
-            longitudeDelta: 0.0421,
-          }}>
-          <MapView.Marker
-            coordinate={{
-              latitude: 37.78825,
-              longitude: -122.4324,
-            }}
-            title="Lokasi"
-            description="Hello"
-          />
-        </MapView>
-        {this.state.showSave ? (
-          <Button
-            light
-            onPress={this.changeName}
-            style={{
-              justifyContent: 'center',
-              backgroundColor: '#f3f3f3',
-              marginHorizontal: 40,
-              borderRadius: 20,
-              marginBottom: 25,
-            }}>
-            <Icon name="save" />
-            <Text style={{fontWeight: 'bold'}}>Save</Text>
-          </Button>
-        ) : (
-          <Text></Text>
-        )}
-
-        <Button
-          onPress={this._logOut}
-          transparent
-          style={{
-            justifyContent: 'center',
-            marginHorizontal: 40,
-            borderRadius: 20,
-          }}>
-          <Icon name="log-out" style={{color: '#000'}} />
-          <Text style={{fontWeight: 'bold', color: '#000'}}> Logout</Text>
-        </Button>
+        <ListItem icon style={{marginTop: 30}}>
+          <Left>
+            <Button style={{backgroundColor: '#FF9501'}}>
+              <Icon active name="person" />
+            </Button>
+          </Left>
+          <Body>
+            <Input
+              value={this.state.name}
+              onChangeText={this.onChange('name')}
+            />
+          </Body>
+          <Right>
+            {this.state.showSaveName ? (
+              <TouchableOpacity onPress={this.changeName}>
+                <Icon name="save" />
+              </TouchableOpacity>
+            ) : (
+              <Icon active name="create" />
+            )}
+          </Right>
+        </ListItem>
+        <ListItem icon style={{marginTop: 20}}>
+          <Left>
+            <Button style={{backgroundColor: '#007AFF'}}>
+              <Icon active name="finger-print" />
+            </Button>
+          </Left>
+          <Body>
+            <Input
+              secureTextEntry
+              placeholder="Change password !"
+              onChangeText={this.onChange('password')}
+            />
+          </Body>
+          <Right>
+            {this.state.showSavePass ? (
+              <TouchableOpacity onPress={this.changePassword}>
+                <Icon name="save" />
+              </TouchableOpacity>
+            ) : (
+              <Icon active name="create" />
+            )}
+          </Right>
+        </ListItem>
+        <ListItem icon style={{marginTop: 20}}>
+          <Left>
+            <Button style={{backgroundColor: '#007AFF'}}>
+              <Icon active name="call" />
+            </Button>
+          </Left>
+          <Body>
+            <Text>{User.phone}</Text>
+          </Body>
+        </ListItem>
+        <ListItem icon style={{marginTop: 20}}>
+          <Left>
+            <Button style={{backgroundColor: '#007AFF'}}>
+              <Icon active name="mail" />
+            </Button>
+          </Left>
+          <Body>
+            <Text>{User.email}</Text>
+          </Body>
+        </ListItem>
+        <ListItem icon style={{marginTop: 20}}>
+          <Left>
+            <Button style={{backgroundColor: '#007AFF'}} onPress={this._logOut}>
+              <Icon active name="log-out" />
+            </Button>
+          </Left>
+          <Body>
+            <TouchableOpacity onPress={this._logOut}>
+              <Text>Logout</Text>
+            </TouchableOpacity>
+          </Body>
+          <Right>
+            <TouchableOpacity onPress={this._logOut}>
+              <Icon active name="arrow-forward" />
+            </TouchableOpacity>
+          </Right>
+        </ListItem>
       </Container>
     );
   }

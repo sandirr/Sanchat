@@ -6,6 +6,8 @@ import {
   TouchableOpacity,
   StatusBar,
   AsyncStorage,
+  View,
+  Button,
 } from 'react-native';
 import {db} from './Config';
 import {
@@ -22,8 +24,14 @@ import {
   ListItem,
   Thumbnail,
   Fab,
+  Tab,
+  Tabs,
+  TabHeading,
 } from 'native-base';
 import User from './navigations/User';
+import Timeline from './TimelineScreen';
+import Around from './AroundScreen';
+import Geolocation from '@react-native-community/geolocation';
 
 class HomeScreen extends Component {
   static navigationOptions = {
@@ -38,7 +46,15 @@ class HomeScreen extends Component {
     };
   }
 
-  componentWillMount() {
+  componentDidMount() {
+    this.setState({users: []});
+    this.getFromFirebase();
+    if (this.props.navigation.getParam('loadAgain')) {
+      this.setState({users: []});
+      this.getFromFirebase();
+    }
+  }
+  getFromFirebase = () => {
     let dbRef = db.ref('users');
     dbRef.on('child_added', val => {
       let person = val.val();
@@ -48,6 +64,17 @@ class HomeScreen extends Component {
         User.image = person.image ? person.image : null;
         User.password = person.password;
         User.email = person.email;
+        Geolocation.getCurrentPosition(info => {
+          const {latitude, longitude} = info.coords;
+          User.latitude = latitude;
+          User.longitude = longitude;
+          db.ref('users')
+            .child(User.phone)
+            .set(User)
+            .then(res => {
+              console.log('position updated');
+            });
+        });
       } else if (person.phone !== User.phone) {
         db.ref('messages')
           .child(User.phone)
@@ -73,12 +100,24 @@ class HomeScreen extends Component {
           });
       }
     });
-  }
+  };
   goToProfile = () => {
     this.props.navigation.navigate('Profile');
   };
   goToChat = () => {
     this.props.navigation.navigate('Chat');
+  };
+
+  getDay = time => {
+    var weekday = new Array(7);
+    weekday[0] = 'Sunday';
+    weekday[1] = 'Monday';
+    weekday[2] = 'Tuesday';
+    weekday[3] = 'Wednesday';
+    weekday[4] = 'Thursday';
+    weekday[5] = 'Friday';
+    weekday[6] = 'Saturday';
+    return <Text note>{weekday[time]}, </Text>;
   };
 
   renderRow = ({item}) => {
@@ -99,13 +138,36 @@ class HomeScreen extends Component {
         </Left>
         <Body style={styles.bodyList}>
           <Text style={{fontWeight: 'bold'}}>{item.name}</Text>
-          <Text note>{item.last_message.slice(0, 30)}...</Text>
+          {item.last_message.latitude ? (
+            <Text note>Position on map</Text>
+          ) : (
+            <Text note>
+              {item.last_message.slice(0, 28)}
+              {item.last_message.length > 28 ? '...' : ''}
+            </Text>
+          )}
         </Body>
         <Right style={styles.bodyList}>
-          <Text note>
-            {new Date(item.last_time).getHours()} :{' '}
-            {new Date(item.last_time).getMinutes()}
-          </Text>
+          {new Date(item.last_time).getMonth() !== new Date().getMonth() ? (
+            <Text note>
+              {new Date(item.last_time).getDate()}/
+              {new Date(item.last_time).getMonth()}/
+              {new Date(item.last_time).getFullYear()}
+            </Text>
+          ) : (
+            <Text note>
+              {new Date(item.last_time).getDay() !== new Date().getDay() ? (
+                this.getDay(new Date(item.last_time).getDay())
+              ) : (
+                <></>
+              )}
+              {new Date(item.last_time).getHours() < 10 ? '0' : ''}
+              {new Date(item.last_time).getHours()}
+              {'.'}
+              {new Date(item.last_time).getMinutes() < 10 ? '0' : ''}
+              {new Date(item.last_time).getMinutes()}
+            </Text>
+          )}
         </Right>
       </ListItem>
     );
@@ -114,7 +176,7 @@ class HomeScreen extends Component {
   render() {
     return (
       <Container style={styles.container}>
-        <Header noShadow style={styles.header}>
+        <Header hasTabs noShadow style={styles.header}>
           <Body>
             <Title style={styles.title}>Sanchat</Title>
           </Body>
@@ -133,20 +195,59 @@ class HomeScreen extends Component {
           </Right>
         </Header>
         <StatusBar barStyle="light-content" backgroundColor="#145970" />
-        <Content>
-          <List>
-            <FlatList
-              data={this.state.users}
-              renderItem={this.renderRow}
-              keyExtractor={item => item.time}
-            />
-          </List>
-        </Content>
-        <Fab
-          style={[styles.footer]}
-          onPress={() => this.props.navigation.navigate('Contact')}>
-          <Icon style={styles.footerIcon} name="people" />
-        </Fab>
+        <Tabs tabContainerStyle={{elevation: 0}}>
+          <Tab
+            heading={
+              <TabHeading style={{backgroundColor: '#176781'}}>
+                <Icon name="chatbubbles" style={{fontSize: 18}} />
+                <Text style={{fontWeight: 'bold', fontSize: 14}}>CHAT</Text>
+              </TabHeading>
+            }>
+            <Content>
+              <List>
+                <FlatList
+                  data={this.state.users
+                    .sort((a, b) => (a.last_time > b.last_time ? 1 : -1))
+                    .reverse()}
+                  renderItem={this.renderRow}
+                  keyExtractor={item => item.phone}
+                />
+                <View style={{height: 100}}></View>
+              </List>
+            </Content>
+            <Fab
+              style={[styles.footer]}
+              onPress={() => this.props.navigation.navigate('Contact')}>
+              <Icon style={styles.footerIcon} name="people" />
+            </Fab>
+          </Tab>
+          <Tab
+            heading={
+              <TabHeading style={{backgroundColor: '#176781'}}>
+                <Icon name="time" style={{fontSize: 18}} />
+                <Text style={{fontWeight: 'bold', fontSize: 14}}>TIMELINE</Text>
+              </TabHeading>
+            }>
+            <Timeline />
+            <Fab
+              style={{backgroundColor: '#176781'}}
+              position="bottomRight"
+              onPress={() => this.props.navigation.navigate('Status')}>
+              <Icon name="create" />
+            </Fab>
+          </Tab>
+          <Tab
+            heading={
+              <TabHeading style={{backgroundColor: '#176781'}}>
+                <Icon name="map" style={{fontSize: 18}} />
+                <Text style={{fontWeight: 'bold', fontSize: 14}}>AROUND</Text>
+              </TabHeading>
+            }>
+            <View style={{flex: 1}}>
+              <Around users={this.state.users} />
+            </View>
+          </Tab>
+        </Tabs>
       </Container>
     );
   }
@@ -157,7 +258,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   footer: {
-    backgroundColor: '#f3f3f3',
+    backgroundColor: '#176781',
   },
   title: {
     fontWeight: 'bold',
@@ -173,6 +274,7 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: '#176781',
+    borderBottomColor: 'white',
   },
   bodyList: {
     borderBottomWidth: 0.5,
@@ -185,7 +287,7 @@ const styles = StyleSheet.create({
     marginLeft: -5,
   },
   footerIcon: {
-    color: '#176781',
+    color: '#f3f3f3',
   },
 });
 

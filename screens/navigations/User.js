@@ -4,5 +4,7 @@ const User = {
   image: null,
   password: null,
   email: null,
+  longitude: null,
+  latitude: null,
 };
 export default User;

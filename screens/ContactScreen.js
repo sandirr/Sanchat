@@ -30,6 +30,9 @@ import {
   Badge,
   Input,
   Item,
+  Tab,
+  Tabs,
+  TabHeading,
 } from 'native-base';
 import User from './navigations/User';
 import {db} from './Config';
@@ -45,7 +48,7 @@ class ContactScreen extends Component {
 
   componentDidMount() {
     let dbRef = db.ref('users');
-    dbRef.on('child_added', val => {
+    dbRef.orderByChild('name').on('child_added', val => {
       let person = val.val();
       person.phone = val.key;
       if (person.phone === User.phone) {
@@ -91,6 +94,7 @@ class ContactScreen extends Component {
         </Left>
         <Body style={styles.bodyList}>
           <Text style={{fontWeight: 'bold'}}>{item.name}</Text>
+          <Text note>{item.phone}</Text>
         </Body>
       </ListItem>
     );
@@ -101,17 +105,19 @@ class ContactScreen extends Component {
       <Container style={styles.container}>
         <Header searchBar rounded style={styles.header}>
           <Left>
-            <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
-              <Icon name="arrow-back" />
+            <TouchableOpacity
+              style={{marginLeft: 10}}
+              onPress={() => this.props.navigation.goBack()}>
+              <Icon style={{color: '#fff'}} name="arrow-back" />
             </TouchableOpacity>
           </Left>
-          <Item rounded style={{marginLeft: -75, marginRight: 5}}>
+          <Item rounded style={{marginLeft: -85, marginRight: 5}}>
             <Icon name="ios-search" />
             <Input placeholder="Search" />
             <Icon name="ios-people" />
           </Item>
         </Header>
-        <StatusBar barStyle="dark-content" backgroundColor="#e5e5e5" />
+        <StatusBar barStyle="light-content" backgroundColor="#145970" />
         <Content>
           <List>
             <FlatList
@@ -145,7 +151,7 @@ const styles = StyleSheet.create({
     marginRight: 5,
   },
   header: {
-    backgroundColor: '#f3f3f3',
+    backgroundColor: '#176781',
   },
   bodyList: {
     borderBottomWidth: 0,
@@ -154,7 +160,6 @@ const styles = StyleSheet.create({
   friendPhoto: {
     height: 35,
     width: 35,
-    marginTop: -7,
     marginLeft: -5,
   },
   footerIcon: {
