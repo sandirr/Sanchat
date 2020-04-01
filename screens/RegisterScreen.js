@@ -36,25 +36,32 @@ class RegisterScreen extends Component {
 
   submitForm = async () => {
     if (this.state.phone.length < 10) {
-      Alert.alert('error', 'wrong phone number');
+      Alert.alert('Not valid !', 'Wrong phone number');
+    } else if (this.state.email.length < 5) {
+      Alert.alert('Not valid !', 'Wrong email');
     } else if (this.state.password.length < 8) {
-      Alert.alert('error', 'Password contains at least 8 characters');
+      Alert.alert('Not valid !', 'Password contains at least 8 characters');
     } else if (this.state.name.length < 1) {
-      Alert.alert('error', 'Please input your name/nickname');
+      Alert.alert('Not valid !', 'Please input your name/nickname');
     } else {
-      await AsyncStorage.setItem('userPhone', this.state.phone);
-      User.phone = this.state.phone;
-      User.password = this.state.password;
-      firebase
-        .database()
-        .ref('users/' + User.phone)
-        .set({
-          name: this.state.name,
-          phone: this.state.phone,
-          password: this.state.password,
-          email: this.state.email,
-        });
-      this.props.navigation.navigate('App');
+      var b = this.state.email.replace(/[a-zA-Z0-9.]/g, '');
+      if (b !== '@') {
+        Alert.alert('Email validation !', 'Wrong Email');
+      } else {
+        await AsyncStorage.setItem('userPhone', this.state.phone);
+        User.phone = this.state.phone;
+        User.password = this.state.password;
+        firebase
+          .database()
+          .ref('users/' + User.phone)
+          .set({
+            name: this.state.name,
+            phone: this.state.phone,
+            password: this.state.password,
+            email: this.state.email,
+          });
+        this.props.navigation.navigate('App');
+      }
     }
   };
   render() {
@@ -71,7 +78,7 @@ class RegisterScreen extends Component {
           style={{
             flex: 1,
           }}>
-          <View style={{marginTop: '30%', marginBottom: 30}}>
+          <View style={{marginTop: '20%', marginBottom: 30}}>
             <H1 style={{alignSelf: 'center', fontWeight: 'bold'}}>
               Sanchat <Icon style={{color: '#176781'}} name="chatbubbles" />
             </H1>
@@ -100,6 +107,7 @@ class RegisterScreen extends Component {
             <Item floatingLabel style={{marginBottom: 10}}>
               <Label>Email</Label>
               <Input
+                keyboardType="email-address"
                 value={this.state.email}
                 onChangeText={this.handleChange('email')}
                 style={{paddingLeft: 0}}
