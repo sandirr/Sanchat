@@ -1,6 +1,8 @@
 # Sanchat
 Real Time Chat App using React Native and Firebase
 
+## Download: https://bit.ly/Sanchat
+
 ## Start
 ```
 git clone https://github.com/sandirr/Sanchat.git
